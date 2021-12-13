@@ -1,33 +1,50 @@
-import { summary } from './functions/summary.js';
 import { getRate, getGrade } from './functions/addition.js';
 import Life from './life.js';
+import Info from './info.js';
 
 class App{
     constructor(){
         this.#life = new Life();
+        this.#packageInfo = new Info();
     }
+
+    //difficulties
+    DIFFICULTY_EASY = 0; //EZ
+    DIFFICULTY_NORMAL = 1; //NM
+    DIFFICULTY_HARD = 2; //HD
+    DIFFICULTY_INSANE = 3; //IN
+
 
     #life;
     #pages;
     #currentPage;
     #talentSelected = new Set();
-    #totalMax = 100; //the total points. Use this to deal the changes caused by talents.
+    #totalMax; //the total points. Use this to deal the changes caused by talents.
     #isEnd = false;
-    #name = "赵家祺"; //default name
+    #name = "你"; //default name
     #selectedExtendTalent = new Set(); //todo: add more.
     #hintTimeout;
     #specialthanks;
     #autoTrajectory;
+    #trajectoryCount;
+    #difficulty;
+    #currentDifficulty;
+    #packageInfo;
 
     async initial() {
+        const [information] = await Promise.all([infoJson('app')]);
+        this.#packageInfo.initial(information);
+        this.initDifficulties();
+        this.#currentDifficulty = this.DIFFICULTY_NORMAL;
         this.initPages();
-        this.switch('loading');
-        const [,specialthanks] = await Promise.all([
-            this.#life.initial(),
-            json('specialthanks')
+        this.show('loading');
+        const [,specialthanks, packageInfo] = await Promise.all([
+            this.#life.initial(this.#packageInfo.get(this.#packageInfo.TYPES.build_variant)),
+            json('specialthanks'),
         ]);
         this.#specialthanks = specialthanks;
-        this.switch('index');
+        this.#packageInfo = packageInfo;
+        this.switch('loading', 'index');
         globalThis.onerror = (event, source, lineno, colno, error) => {
             this.hint(`[ERROR] at (${source}:${lineno}:${colno})\n\n${error?.stack||error||'unknow Error'}`, 'error');
         }
@@ -37,8 +54,19 @@ class App{
                 pressEnterFunc && typeof pressEnterFunc === 'function' && pressEnterFunc();
             }
         }
+        this.#trajectoryCount = 0;
         globalThis.removeEventListener('keydown', keyDownCallback);
         globalThis.addEventListener('keydown', keyDownCallback);
+        this.#totalMax = this.#difficulty[this.#currentDifficulty][0];
+    }
+
+    initDifficulties(){
+        this.#difficulty = {
+            [this.DIFFICULTY_EASY]: [100, 50, 8, 4], 
+            [this.DIFFICULTY_NORMAL]: [50, 20, 5, 3], 
+            [this.DIFFICULTY_HARD]: [10, 15, 3, 1], 
+            [this.DIFFICULTY_INSANE]: [5, 10, 2, 0]
+        }
     }
 
     isLightTheme(){
@@ -58,7 +86,7 @@ class App{
 
         // Loading
         const loadingPage = $(`
-        <div id="main" class="main visible">
+        <div id="loading_main" class="loading_main visible">
             <div id="title" style="font-weight: 700;">
                 <span style="letter-spacing:0.2rem">人生重开</span><br>
                 <div style="margin-top:0.2rem;font-size:1.3rem;opacity:0.85;letter-spacing:0.08rem;">正在加载，等待片刻</div><br>
@@ -68,7 +96,7 @@ class App{
 
         // Index
         const indexPage = $(`
-        <div id="main" class="main visible" style="align:center">
+        <div id="index_main" class="index_main visible" style="align:center">
             <button id="achievement">成就</button>
             <button id="specialthanks">特别感谢</button>
             <button id="about">关于</button>
@@ -77,7 +105,7 @@ class App{
             <button id="load">导入</button>
             <div id="title" style="font-weight: 700;">
                 <span style="letter-spacing:0.2rem">人生重开</span><br>
-                <div style="margin-top:0.2rem;font-size:1.3rem;opacity:0.85;letter-spacing:0.08rem;">玩你个头，垃圾人生</div><br>
+                <div style="margin-top:0.2rem;font-size:1.3rem;opacity:0.85;letter-spacing:0.08rem;">指尖轻触，重拾人生</div><br>
             </div>
             <button id="restart" class="mainbtn" style="padding-top:0.8rem;padding-bottom:0.8rem;padding-left:2rem;padding-right:2rem; letter-spacing:0.12rem;" >点按开始</button>
         </div>
@@ -89,16 +117,17 @@ class App{
         indexPage
             .find('#restart')
             .click(()=>{
-                this.switch('name');
-                if(localStorage.getItem('name') != null){
-                    this.#name = localStorage.getItem('name');
-                    document.getElementById('nameInput').value = this.#name;
-                }
+                this.switch('index', 'name', () => {
+                    if(localStorage.getItem('name') != null){
+                        this.#name = localStorage.getItem('name');
+                        document.getElementById('nameInput').value = this.#name;
+                    }
+                });
             });
 
         indexPage
             .find('#achievement')
-            .click(()=>this.switch('achievement'));
+            .click(()=>this.switch('index', 'achievement'));
 
         indexPage
             .find('#save')
@@ -106,7 +135,7 @@ class App{
                 const data = {};
                 Object
                     .keys(localStorage)
-                    .filter(v=>v.substr(0,4)!='goog')
+                    .filter(v=>v.substring(0,4)!='goog')
                     .forEach(key=>data[key] = localStorage[key]);
 
                 let blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
@@ -138,7 +167,7 @@ class App{
                         for(const key in data) {
                             localStorage[key] = data[key];
                         }
-                        this.switch('index');
+                        this.switch('loading', 'index');
                         this.setTheme(localStorage.getItem('theme'))
                         indexPage.find('#themeToggleBtn').text(this.isLightTheme() ? '黑' : '白');
                         this.hint('导入存档成功', 'success');
@@ -154,14 +183,16 @@ class App{
             .click(() => {
                 localStorage.setItem('theme', this.isLightTheme() ? 'dark' : 'light');
                 indexPage.find('#themeToggleBtn').text(this.isLightTheme() ? '黑' : '白');
-                this.setTheme(localStorage.getItem('theme'))
+                this.setTheme(localStorage.getItem('theme'));
+                this.changeBackColor(false, []);
             });
 
         indexPage
             .find('#specialthanks').hide();
 
+        //I kept this for not causing any other bugs for me to fix...
         const specialThanksPage = $(`
-        <div id="main" class="main visible">
+        <div id="thanks_main" class="thanks_main visible">
             <button id="specialthanks">返回</button>
             <div id="spthx">
                 <ul class="g1"></ul>
@@ -174,23 +205,22 @@ class App{
 
         specialThanksPage
             .find('#specialthanks')
-            .click(()=>this.switch('index'));
+            .click(()=>this.switch('thanks', 'index'));
 
+        //this ui need to be optimized.
         const aboutPage = $(`
-            <div id="main" class="main visible">
+            <div id="about_main" class="about_main visible">
                 <button id="about">返回</button>
                 <div id="title" style="font-weight: 700;top:30%;left:35%;">
                     <span style="letter-spacing:0.2rem">人生重开</span><br>
-                    <div style="margin-top:0.2rem;font-size:1.3rem;opacity:0.85;letter-spacing:0.08rem;">玩你个头，垃圾人生</div><br><br>
+                    <div style="margin-top:0.2rem;font-size:1.3rem;opacity:0.85;letter-spacing:0.08rem;">指尖轻触，重拾人生</div><br><br>
                     </div>
                     <div class="text" style="font-weight: bold; position: absolute;top:35%;overflow:scroll;text-align:left;padding-left:1.2rem;">
                     <div style="margin-top:0.2rem;font-size:1.2rem;padding-left:1.8rem;">本游戏经过二次修改</div>
                     <div style="margin-top:0.2rem;font-size:1.2rem;padding-left:1.8rem;">目前仅供学习和交流</div>
-                    <div style="margin-top:0.2rem;font-size:1.2rem;padding-left:1.8rem;">Ver. 2.4.0.2111061.beta</div><br><br>
+                    <div style="margin-top:0.2rem;font-size:1.2rem;padding-left:1.8rem;">Ver. ${this.#packageInfo.get(this.#packageInfo.TYPES.version_main)}.${this.#packageInfo.get(this.#packageInfo.TYPES.build_date)}${this.#packageInfo.get(this.#packageInfo.TYPES.release_edition)}.${this.#packageInfo.get(this.#packageInfo.TYPES.build_variant) == 'release' ? this.#packageInfo.get(this.#packageInfo.TYPES.update_content).length : this.#packageInfo.get(this.#packageInfo.TYPES.build_variant)}</div><br><br>
                     <div style="margin-top:0.2rem;font-size:1.2rem;transform:scale(0.8);">What's new.</div>
-                    <div style="margin-top:0.2rem;font-size:1.2rem;transform:scale(0.8);">1.部分页面微调.</div>
-                    <div style="margin-top:0.2rem;font-size:1.2rem;transform:scale(0.8);">2.虚拟年龄玩法拓展，底层支持多支线.</div>
-                    <div style="margin-top:0.2rem;font-size:1.2rem;transform:scale(0.8);">3.添加了几个事件.</div><br><br>
+                    <div style="margin-top:0.2rem;font-size:1.2rem;transform:scale(0.8);">${this.#packageInfo.get(this.#packageInfo.TYPES.update_content).map((value,index) => (index + 1) + '.' + value).join('<br>')}</div><br><br>
                     <div style="margin-top:0.2rem;font-size:1.2rem;transform:scale(0.8);">原作者   VickScarlet</div>
                     <div style="margin-top:0.2rem;font-size:1.2rem;transform:scale(0.8);">liferestart.syaro.io</div><br>
                     <div style="margin-top:0.2rem;font-size:1.2rem;transform:scale(0.8);">二次修改者</div>
@@ -204,14 +234,14 @@ class App{
             `);
 
         indexPage
-            .find('#about').click(()=>this.switch('about'));
+            .find('#about').click(()=>this.switch('index', 'about'));
 
         aboutPage
             .find('#about')
-            .click(()=>this.switch('index'));
+            .click(()=>this.switch('about', 'index'));
             
         const achievementPage = $(`
-        <div id="main" class="main visible">
+        <div id="achievement_main" class="achievement_main visible">
             <button id="specialthanks">返回</button>
             <span class="title" style="font-weight: 700; letter-spacing:0.2rem; font-size: 2rem; text-align:left; padding-left:1.4rem; padding-top:3.4rem">统计数据</span>
             <ul id="total"></ul>
@@ -222,19 +252,19 @@ class App{
 
         achievementPage
             .find('#specialthanks')
-            .click(()=>this.switch('index'));
+            .click(()=>this.switch('achievement', 'index'));
 
         achievementPage
             .find('#rank')
             .click(()=>this.hint('别卷了，你老牛了'));
 
         const namePage = $(`
-            <div id="main" class="main visible">
+            <div id="name_main" class="name_main visible">
                 <div class="head" style="font-size: 2rem;font-family: 'OppoSans';padding-left:2rem;padding-top:2rem">
                     <div>你的名字？</div>
                     <div style="font-size:1.2rem; font-weight:normal;font-family: 'OppoSans'">输入一个简简单单的名字以继续</div>
                 </div>
-                <input id="nameInput" value="赵家祺"/>
+                <input id="nameInput" value="你"/>
                 <button id="continue" class="mainbtn" style="position:fixed;width:90%;bottom:0;align-self:center;">来吧，20连抽！</button>
             </div>
         `);
@@ -248,19 +278,19 @@ class App{
                     return;
                 }
                 localStorage.setItem('name', this.#name);
-                this.switch('talent');
+                this.switch('name', 'talent');
             });
 
         // Talent
         const talentPage = $(`
-        <div id="main" class="main visible">
+        <div id="talent_main" class="talent_main visible">
             <div class="head" style="font-size: 2rem;font-family: 'OppoSans';padding-left:2rem;padding-top:2rem">
                 <div>天赋抽个卡</div>
-                <div style="font-size:1.2rem; font-weight:normal;font-family: 'OppoSans'">点按选择4-8个天赋以继续</div>
+                <div style="font-size:1.2rem; font-weight:normal;font-family: 'OppoSans'">点按选择${this.#difficulty[this.#currentDifficulty][3]}-${this.#difficulty[this.#currentDifficulty][2]}个天赋以继续</div>
             </div>
             <button id="random" class="mainbtn" style="position: fixed; top: 44%;align-self:center;">来吧，20连抽！</button>
             <ul id="talents" class="selectlist" style="padding-top:2rem"></ul>
-            <button id="next" class="mainbtn">选择4-8个吧</button>
+            <button id="next" class="mainbtn">选择${this.#difficulty[this.#currentDifficulty][3]}-${this.#difficulty[this.#currentDifficulty][2]}个吧</button>
         </div>
         `);
 
@@ -281,12 +311,12 @@ class App{
                             if(li.hasClass('selected')) {
                                 li.removeClass('selected')
                                 this.#talentSelected.delete(talent);
-                                if(this.#talentSelected.size < 4) {
-                                    talentPage.find('#next').text('请选择至少4个')
+                                if(this.#talentSelected.size < this.#difficulty[this.#currentDifficulty][3]) {
+                                    talentPage.find('#next').text('请选择至少' + this.#difficulty[this.#currentDifficulty][3] + '个')
                                 }
                             } else {
-                                if(this.#talentSelected.size == 8) {
-                                    this.hint('只能选最多8个天赋');
+                                if(this.#talentSelected.size == this.#difficulty[this.#currentDifficulty][2]) {
+                                    this.hint('只能选最多' + this.#difficulty[this.#currentDifficulty][2] + '个天赋');
                                     return;
                                 }
                                 const exclusive = this.#life.exclusive(
@@ -304,7 +334,7 @@ class App{
                                 }
                                 li.addClass('selected');
                                 this.#talentSelected.add(talent);
-                                if(this.#talentSelected.size<=8 && this.#talentSelected.size>=4) {
+                                if(this.#talentSelected.size <= this.#difficulty[this.#currentDifficulty][2] && this.#talentSelected.size >= this.#difficulty[this.#currentDifficulty][3]) {
                                     talentPage.find('#next').text('开启新人生')
                                 }
                             }
@@ -316,19 +346,19 @@ class App{
         talentPage
             .find('#next')
             .click(()=>{
-                if(this.#talentSelected.size < 4 || this.#talentSelected.size > 8) {
-                    this.hint('请选择4-8个天赋');
+                if(this.#talentSelected.size < this.#difficulty[this.#currentDifficulty][3] || this.#talentSelected.size > this.#difficulty[this.#currentDifficulty][2]) {
+                    this.hint('请选择' + this.#difficulty[this.#currentDifficulty][3] + '-' + this.#difficulty[this.#currentDifficulty][2] + '个天赋');
                     return;
                 }
                 talentPage.find('#next').hide()
-                this.#totalMax = 100 + this.#life.getTalentAllocationAddition(Array.from(this.#talentSelected).map(({id})=>id));
-                this.switch('property');
+                this.#totalMax = this.#difficulty[this.#currentDifficulty][0] + this.#life.getTalentAllocationAddition(Array.from(this.#talentSelected).map(({id})=>id));
+                this.switch('talent', 'property');
             })
 
         // Property
         // hint of extension tobermory.es6-string-html
         const propertyPage = $(/*html*/`
-        <div id="main" class="main visible">
+        <div id="property_main" class="property_main visible">
             <div class="head" style="font-size: 2rem;font-family: 'OppoSans';padding-left:2rem;padding-top:2rem">
                 <div>分配初始属性</div>
                 <div id="total" style="font-size:1.2rem; font-weight:normal;font-family: 'OppoSans'">剩余属性点：0</div>
@@ -404,10 +434,10 @@ class App{
             return {group, get, set};
         }
 
-        groups.CHR = getBtnGroups("颜值", 0, 50); // 颜值 charm CHR
-        groups.INT = getBtnGroups("智力", 0, 50); // 智力 intelligence INT
-        groups.STR = getBtnGroups("体质", 0, 50); // 体质 strength ST
-        groups.MNY = getBtnGroups("家境", 0, 50); // 家境 money MNY
+        groups.CHR = getBtnGroups("颜值", 0, this.#difficulty[this.#currentDifficulty][1]); // 颜值 charm CHR
+        groups.INT = getBtnGroups("智力", 0, this.#difficulty[this.#currentDifficulty][1]); // 智力 intelligence INT
+        groups.STR = getBtnGroups("体质", 0, this.#difficulty[this.#currentDifficulty][1]); // 体质 strength ST
+        groups.MNY = getBtnGroups("家境", 0, this.#difficulty[this.#currentDifficulty][1]); // 家境 money MNY
 
         const ul = propertyPage.find('#propertyAllocation');
 
@@ -419,9 +449,9 @@ class App{
             .find('#random')
             .click(()=>{ //a random method to randomize the point (it might have two '0' because of the range)
                 let t = this.#totalMax;
-                const arr = [50, 50, 50, 50];
+                const arr = [this.#difficulty[this.#currentDifficulty][1], this.#difficulty[this.#currentDifficulty][1], this.#difficulty[this.#currentDifficulty][1], this.#difficulty[this.#currentDifficulty][1]];
                 while(t > 0) {
-                    const sub = Math.round(Math.random() * (Math.min(t, 50) - 1)) + 1;
+                    const sub = Math.round(Math.random() * (Math.min(t, this.#difficulty[this.#currentDifficulty][1]) - 1)) + 1;
                     while(true) {
                         const select = Math.floor(Math.random() * 4) % 4;
                          if(arr[select] - sub < 0) continue;
@@ -430,10 +460,10 @@ class App{
                         break;
                     }
                 }
-                groups.CHR.set(50 - arr[0]);
-                groups.INT.set(50 - arr[1]);
-                groups.STR.set(50 - arr[2]);
-                groups.MNY.set(50 - arr[3]);
+                groups.CHR.set(this.#difficulty[this.#currentDifficulty][1] - arr[0]);
+                groups.INT.set(this.#difficulty[this.#currentDifficulty][1] - arr[1]);
+                groups.STR.set(this.#difficulty[this.#currentDifficulty][1] - arr[2]);
+                groups.MNY.set(this.#difficulty[this.#currentDifficulty][1] - arr[3]);
             });
 
         propertyPage
@@ -454,8 +484,7 @@ class App{
                     SPR: Math.floor(Math.random() * 5) + 5,
                     TLT: Array.from(this.#talentSelected).map(({id})=>id),
                 });
-                this.switch('trajectory');
-                this.#pages.trajectory.born(contents);
+                this.switch('property', 'trajectory', () => this.#pages.trajectory.born(contents));
                 // $(document).keydown(function(event){
                 //     if(event.which == 32 || event.which == 13){
                 //         $('#lifeTrajectory').click();
@@ -465,13 +494,13 @@ class App{
 
         // Trajectory
         const trajectoryPage = $(`
-        <div id="main" class="main visible">
+        <div id="trajectory_main" class="trajectory_main visible">
             <ul id="lifeProperty" class="lifeProperty"></ul>
             <ul id="lifeTrajectory" class="lifeTrajectory"></ul>
             <div class="btn-area">
                 <button id="auto" class="mainbtn" style="margin-right:0rem">自动播放</button>
-                <button id="auto50x" class="mainbtn">自动播放50x</button>
-                <button id="domToImage" class="mainbtn" style="margin-right:0rem;">人生回放</button>
+                <button id="auto50x" class="mainbtn">加速播放</button>
+                <button id="domToImage" class="mainbtn" style="margin-right:0rem;">保存截图</button>
                 <button id="summary" class="mainbtn">人生总结</button>
             </div>
             <div class="domToImage2wx">
@@ -485,22 +514,59 @@ class App{
             .click(()=>{
                 if(this.#isEnd) return;
                 const trajectory = this.#life.next(); //get next event
-                const { age, backColor, virtual, content, isEnd } = trajectory; //divide it
-                this.changeBackColor(virtual, backColor);
-                const li = $(`<li><span>${age}岁`+ (virtual ? `<br><span style="font-size: 0.48rem; opacity: 0.75;">virtual</span>` : ``) + `</span><span>${
-                    content.map(
-                        ({type, description, grade, name, postEvent}) => {
-                            switch(type) {
-                                case 'TLT':
-                                    return `天赋【${name}】发动了：${description}`;
-                                case 'EVT': //replace the name, \n and \r
-                                    return description.replace('%name%', this.#name).replace("\n", "<br>").replace("\r", "<br>") + (postEvent?`<br>${postEvent}`:'');
-                            }
-                        }
-                    ).join('<br>')
-                }</span></li>`);
-                li.appendTo('#lifeTrajectory');
-                $("#lifeTrajectory").scrollTop($("#lifeTrajectory")[0].scrollHeight);
+                const { age, backColor, virtual, content, isEnd, isAppend, month } = trajectory; //divide it
+                if(isAppend){
+                    const appli = $(`<li class="lifeTrajectoryItemAppendChild">
+                    <div class="lifeTrajectoryItemAppendChildInnerParent">
+                    <span class="lifeTrajectoryItemAppendChildMonth">${month}</span>
+                        <span class="lifeTrajectoryItemAppendChildDescription">${
+                            content.map(
+                                ({type, description, grade, name, postEvent}) => {
+                                    switch(type) {
+                                        case 'TLT':
+                                            return `天赋【${name}】发动了：${description}`;
+                                        case 'EVT':
+                                            return this.dealLocalVariable(description, postEvent);
+                                    }
+                                }
+                           ).join('<br>')
+                       }</span>
+                    </div></li>`);
+                    appli.appendTo("#ul" + (this.#trajectoryCount - 1));
+                    $("#description" + (this.#trajectoryCount - 1)).show();
+                    $("#ulParent" + (this.#trajectoryCount - 1)).show();
+                    $("#lifeTrajectory").scrollTop($("#lifeTrajectory")[0].scrollHeight);
+                }else{
+                    this.changeBackColor(virtual, backColor);
+                    const li = $(`<li>
+                    <div class="lifeTrajectoryItemParentParent">
+                        <div class="lifeTrajectoryItemMainParent">
+                            <span class="lifeTrajectoryItemTitle">${age}岁`+ (virtual ? `<br>
+                            <span class="lifeTrajectoryItemVirtual">virtual</span>` : ``) + `</span>
+                            <span class="lifeTrajectoryItemMain">${
+                                content.map(
+                                    ({type, description, grade, name, postEvent}) => {
+                                        switch(type) {
+                                            case 'TLT':
+                                                return `天赋【${name}】发动了：${description}`;
+                                            case 'EVT':
+                                                return this.dealLocalVariable(description, postEvent);
+                                        }
+                                    }
+                               ).join('<br>')
+                           }</span>
+                       </div>
+                       <span class="lifeTrajectoryItemAppendDescription" id="description${this.#trajectoryCount}">在这一年...</span>
+                       <div class="lifeTrajectoryItemAppendUlParent" id="ulParent${this.#trajectoryCount}">
+                           <ul class="lifeTrajectoryItemAppendParent" id="ul${this.#trajectoryCount}"/>
+                        </div>
+                    </div></li>`);
+                    li.appendTo('#lifeTrajectory');
+                    this.#trajectoryCount++;
+                    $("#description" + (this.#trajectoryCount - 1)).hide();
+                    $("#ulParent" + (this.#trajectoryCount - 1)).hide();
+                    $("#lifeTrajectory").scrollTop($("#lifeTrajectory")[0].scrollHeight);
+                }
                 if(isEnd) {
                     $(document).unbind("keydown");
                     this.#isEnd = true;
@@ -545,7 +611,9 @@ class App{
             .click(()=>{
                 clearInterval(this.#autoTrajectory);
                 this.#autoTrajectory = null;
-                this.switch('summary');
+                this.switch('trajectory', 'summary', () => {
+                    this.#pages[this.#currentPage].init();
+                });
             });
 
         const auto = tick=>{
@@ -579,20 +647,48 @@ class App{
 
         // Summary
         const summaryPage = $(`
-        <div id="main" class="main visible">
-            <div class="head" style="font-size: 2rem;font-family: 'OppoSans';padding-left:2rem;padding-top:2rem">人生总结</div>
-            <ul id="judge" class="judge" style="flex: none;margin-left:1.6rem;margin-right:1.6rem;">
-                <li class="grade2"><span>颜值：</span><span>9级 美若天仙</span></li><li class="grade0"><span>智力：</span><span>4级 智力一般</span></li>
-                <li class="grade0"><span>体质：</span><span>1级 极度虚弱</span></li>
-                <li class="grade0"><span>家境：</span><span>6级 小康之家</span></li>
-                <li class="grade0"><span>享年：</span><span>3岁 早夭</span></li>
-                <li class="grade0"><span>快乐：</span><span></span>3级 不太幸福的人生</li>
-            </ul>
+        <div id="summary_main" class="summary_main visible">
+            <div class="head" style="font-size: 2rem;font-family:'OppoSans';padding-left:2rem;padding-top:2rem">人生总结</div>
+            <div style="display:flex;margin-top: 1.2rem;margin-left: 2rem;margin-right: 2rem;margin-bottom: 1.6rem;padding: 1.6rem;align-items: baseline;border-radius: 2.4rem;background: #daf7a6;box-shadow: 0.2rem 0.4rem 1.6rem rgb(0 0 0 / 16%);align-items: center;flex-direction: column;">
+                <div style="display:flex;align-items: flex-start;width: -webkit-fill-available;">
+                    <span style="align-self:flex-start;padding-bottom: 1.6rem;font-size: 0.7rem;transform: scale(0.75);font-family:'exo';">Total Score</span>
+                    <span style="align-self:flex-start;padding-bottom: 1.6rem;font-size: 0.7rem;transform: scale(0.75);padding-left: 0.6rem;font-family:'exo';opacity:0.85" id="best">NEW BEST</span>
+                </div>    
+                <span style="font-weight: 600;font-size: 3.6rem;width: -webkit-fill-available;font-family:'exo';text-align-last: center;" id="summary_SUM"></span>
+                <div style="display:flex;align-self: flex-start;padding-left: 2rem;flex-direction: column;padding-top: 1rem;padding-bottom: 0.8rem;">
+                    <div class="judgeParent">
+                        <div class="judgeItem">
+                            <span style="padding-right: 0.6rem;">颜值</span>
+                            <span id="summary_CHR"></span>
+                        </div>
+                        <div class="judgeItem">
+                            <span style="padding-right: 0.6rem;">智力</span>
+                            <span id="summary_INT"></span>
+                        </div>
+                        <div class="judgeItem">
+                            <span style="padding-right: 0.6rem;">体质</span>
+                            <span id="summary_STR"></span>
+                        </div>
+                    </div>
+                    <div class="judgeParent">
+                        <div class="judgeItem">
+                            <span style="padding-right: 0.6rem;">家境</span>
+                            <span id="summary_MNY"></span>
+                        </div>
+                        <div class="judgeItem">
+                            <span style="padding-right: 0.6rem;">快乐</span>
+                            <span id="summary_SPR"></span>
+                        </div>
+                        <div class="judgeItem">
+                           <span style="padding-right: 0.6rem;">享年</span>
+                           <span id="summary_AGE"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>    
             <div class="head" style="padding-left:2rem;padding-top:0.2rem;height:auto;font-size:1.6rem;letter-spacing:0rem;">选择继承天赋</div>
             <div class="head" style="padding-left:2rem;padding-top:0.2rem;height:auto;font-size:1.2rem;letter-spacing:0rem;opacity:0.85">下次重开将默认抽中</div>
-            <ul id="talents" class="selectlist" style="flex: 1;padding-top:1.6rem">
-                <li class="grade2b">黑幕（面试一定成功）</li>
-            </ul>
+            <ul id="talents" class="selectlist" style="flex: 1;padding-top:1.6rem"></ul>
             <button id="again" class="mainbtn" style="margin-left:2rem;margin-right:2rem;">再次重开</button>
         </div>
         `);
@@ -604,9 +700,9 @@ class App{
                 this.#life.talentExtend(Array.from(this.#selectedExtendTalent));
                 this.#selectedExtendTalent = new Set();
                 this.#talentSelected.clear();
-                this.#totalMax = 100;
+                this.#totalMax = this.#difficulty[this.#currentDifficulty][0];
                 this.#isEnd = false;
-                this.switch('index');
+                this.switch('summary', 'index');
             });
 
         this.#pages = {
@@ -665,15 +761,24 @@ class App{
             },
             about: {
                 page: aboutPage,
-                clear: () => {}
+                clear: () => {
+                    this.#currentPage = 'about';
+                }
             },
             name: {
                 page: namePage,
-                clear: () => {}
+                continue: namePage.find('#continue'),
+                clear: () => {
+                    this.#currentPage = 'name';
+                },
+                pressEnter: ()=>{
+                    this.#pages.name.continue.click();
+                }
             },
             achievement: {
                 page: achievementPage,
                 clear: () => {
+                    this.#currentPage = 'achievement';
                     const total = achievementPage.find("ul#total");
                     const achievements = achievementPage.find("ul#achievements");
                     total.empty();
@@ -715,7 +820,10 @@ class App{
                         name, description, hide,
                         grade, isAchieved
                     })=>{
-                        if(hide && !isAchieved) name = description = '???';
+                        if(hide && !isAchieved) {
+                            name = '???';
+                            description = ' - locked - ';
+                        }
                         achievements.append(
                             `<li class="achvg${grade} ${isAchieved?'':'mask'}"><span class="achievementtitle">${name}</span>${description}</li>`
                         );
@@ -741,7 +849,7 @@ class App{
                 clear: ()=>{
                     this.#currentPage = 'talent';
                     talentPage.find('ul.selectlist').empty();
-                    this.#totalMax = 100;
+                    this.#totalMax = this.#difficulty[this.#currentDifficulty][0];
                     setTimeout(() => talentPage.find('#random').click(), 10);
                 },
             },
@@ -777,12 +885,15 @@ class App{
                 born: contents => {
                     if(contents.length > 0)
                         $('#lifeTrajectory')
-                            .append(`<li><span>初始</span><span>${
-                                contents.map(
-                                    ({source, target}) => `天赋【${source.name}】发动：替换为天赋【${target.name}】`
-                                ).join('<br>')
-                            }</span></li>`);
-
+                            .append(`<li><div class="lifeTrajectoryItemParentParent">
+                            <div class="lifeTrajectoryItemMainParent">
+                                <span class="lifeTrajectoryItemTitle">初始</span>
+                                <span class="lifeTrajectoryItemMain">${
+                                    contents.map(
+                                        ({source, target}) => `天赋【${source.name}】发动：替换为天赋【${target.name}】`
+                                    ).join('<br>')
+                                }</span>
+                            </div></div></li>`);
                     trajectoryPage.find('#lifeTrajectory').trigger("click");
                 }
             },
@@ -790,9 +901,7 @@ class App{
                 page: summaryPage,
                 clear: ()=>{
                     this.#currentPage = 'summary';
-                    const judge = summaryPage.find('#judge');
                     const talents = summaryPage.find('#talents');
-                    judge.empty();
                     talents.empty();
                     const lastExtendTalent = this.#life.getLastExtendTalent();
                     Array
@@ -819,23 +928,29 @@ class App{
                             });
                             if(!i) li.click();
                         });
-
+                },
+                init: () =>{
                     const summaryData = this.#life.getSummary();
-                    const format = (discription, type)=>{
+                    const adjust = (length, to) => {
+                        let append = String(to);
+                        for(let i=0;i<length;i++)
+                            if(append.length < length) append = "0" + append;
+                        return append;
+                    }
+                    const format = (type, length) => {
                         const value = summaryData[type];
-                        const { judge, grade } = summary(type, value);
-                        return `<li class="grade${grade}"><span>${discription}：</span><span>${value} ${judge}</span></li>`;
+                        return String(length ? adjust(length, value) : value);
                     };
 
-                    judge.append(`
-                        ${format('颜值', 'CHR')}
-                        ${format('智力', 'INT')}
-                        ${format('体质', 'STR')}
-                        ${format('家境', 'MNY')}
-                        ${format('快乐', 'SPR')}
-                        ${format('享年', 'AGE')}
-                        ${format('总评', 'SUM')}
-                    `);
+                    const lastBest = localStorage.getItem('bestScore');
+                    const currentScore = Number(format('SUM'));
+                    document.getElementById('best').innerText = lastBest && Number(lastBest) >= currentScore ? 'BEST    ' + adjust(7, lastBest) : 'NEW  BEST';
+                    if(!lastBest || (lastBest && Number(lastBest) < currentScore)) localStorage.setItem('bestScore', currentScore);
+
+                    let judges = ['CHR', 'INT', 'STR', 'MNY', 'SPR', 'AGE', 'SUM'];
+                    for(const judge of judges){
+                        document.getElementById('summary_' + judge).innerText = format(judge, judge == 'SUM' ? 7 : undefined);
+                    }
                 }
             },
         }
@@ -844,16 +959,46 @@ class App{
             this.hint(`解锁成就【${name}】`, 'success');
         })
     }
+    
+    //replace the name, \n and \r
+    dealLocalVariable(description, postEvent) {
+        return description.replace('%name%', this.#name).replace("\n", "<br>").replace("\r", "<br>").replace("\\n", "<br>").replace("\\r", "<br>") + (postEvent ? `<br>${postEvent}` : '');
+    }
 
-    switch(page) {
+    show(page) {
         const p = this.#pages[page];
         if(!p) return;
-        $('#main').detach();
+        const a = document.getElementById(page + "_main");
         p.clear();
         p.page.appendTo('body');
         if(typeof p.page.mounted === 'function'){
-            p.page.mounted()
+            p.page.mounted();
         }
+    }
+
+    switch(disappearId, page, after) {
+        const p = this.#pages[page];
+        if(!p) return;
+        const d = document.getElementById(disappearId + "_main");
+        const tod = $('#' + disappearId + "_main");
+        if(d) if(d.classList) requestAnimationFrame(() => {
+            d.classList.remove("visible");
+            d.classList.add("toInvisible");
+            setTimeout(function(){
+                d.classList.remove("toInvisible");
+                tod.detach();
+            }, 500);
+        });
+        setTimeout(() => {
+            p.clear();
+            p.page.appendTo('body');
+            if(typeof p.page.mounted === 'function'){
+                p.page.mounted();
+            }
+            let a = document.getElementById(page + "_main");
+            if(a) if(a.classList) a.classList.add("visible");
+            if(after) after();
+        }, 80);
     }
 
     hint(message, type='info') {

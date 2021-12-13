@@ -53,6 +53,7 @@ html {
   -webkit-transition: all 0.6s cubic-bezier(0.075, 0.82, 0.165, 1) !important;
   background-color:#303030;
   font-family: 'OppoSans';
+  scroll-behavior: smooth;
 }
 
 body {
@@ -63,36 +64,59 @@ input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
 -webkit-appearance: none;
 }
+
 input[type=“number”]{
 -moz-appearance: textfield;
 }
 
-.main{
+.loading_main, 
+.index_main, 
+.name_main, 
+.thanks_main, 
+.about_main, 
+.achievement_main, 
+.talent_main, 
+.property_main, 
+.trajectory_main, 
+.summary_main{
+  display: flex;
   flex-direction: column;
   width: 100%;
   max-width: 30rem;
   height: 100%;
   text-align: center;
   box-sizing: border-box;
-  position: relative;
+  position: absolute;
 }
 
-.main.toInvisible {
-  display: flex !important;
+.loading_main.toInvisible, 
+.index_main.toInvisible, 
+.name_main.toInvisible, 
+.thanks_main.toInvisible, 
+.about_main.toInvisible, 
+.achievement_main.toInvisible, 
+.talent_main.toInvisible, 
+.property_main.toInvisible, 
+.trajectory_main.toInvisible, 
+.summary_main.toInvisible {
   animation-name: main-out;
   animation-direction: forwards;
   animation-duration: 0.5s;
   animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
-  animation-fill-mode:forwards;
+  animation-fill-mode:both;
   animation-iteration-count: 1;
 }
 
-.main.invisible{
-  display:none !important;
-}
-
-.main.visible {
-  display: flex !important;
+.loading_main.visible, 
+.index_main.visible, 
+.name_main.visible, 
+.thanks_main.visible, 
+.about_main.visible, 
+.achievement_main.visible, 
+.talent_main.visible, 
+.property_main.visible, 
+.trajectory_main.visible, 
+.summary_main.visible {
   animation-name: main-in;
   animation-direction: forwards;
   animation-duration: 0.5s;
@@ -103,11 +127,25 @@ input[type=“number”]{
 
 @keyframes main-in {
   0% {
-    transform: translateX(100%);
+    opacity: 0;
+    transform: translateX(45%);
   }
 
   100% {
+    opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes main-out {
+  0% {
+    opacity: 1;
+    transform: translateX(0%);
+  }
+  
+  100% {
+    opacity: 0;
+    transform: translateX(-45%);
   }
 }
 
@@ -584,21 +622,89 @@ ul#total li .achievementtitle,
   -webkit-transition: all 0.6s cubic-bezier(0.075, 0.82, 0.165, 1) !important;
 }
 
-.lifeTrajectory>li>span:nth-child(1) {
+.lifeTrajectoryItemTitle{
   text-align: left;
   font-weight: 700;
   font-size: 1.25rem;
-  padding-left: 1.2rem;
-  padding-top: 0.4rem;
-  padding-bottom: 0.4rem;
+  padding-top: 0.6rem;
   padding-right: 1rem;
+  padding-bottom: 0.6rem;
 }
 
-.lifeTrajectory>li>span:nth-child(2) {
+.lifeTrajectoryItemMain{
   flex: 1;
   text-align: left;
   padding-top: 0.4rem;
   padding-bottom: 0.4rem;
+}
+
+.lifeTrajectoryItemVirtual{
+  font-size: 0.48rem; 
+  opacity: 0.75;
+}
+
+.lifeTrajectoryItemParentParent{
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  padding-left: 1.2rem;
+  padding-right: 1.2rem;
+}
+
+.lifeTrajectoryItemMainParent{
+  align-items:center;
+  display: flex;
+}
+
+.lifeTrajectoryItemAppendDescription{
+  font-size: 0.8rem;
+  padding-top: 1.6rem;
+  font-weight: 600;
+  letter-spacing: 0.12rem;
+}
+
+.lifeTrajectoryItemAppendUlParent{
+  width: -webkit-fill-available;
+  padding-bottom: 0.4rem;
+}
+
+.lifeTrajectoryItemAppendParent{
+  list-style-type: none;
+  margin-top: 0.5rem;
+  margin-bottom: 0.8rem;
+  padding: 0.4rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 1.2px #cccccc solid;
+  border-radius: 16px;
+}
+
+.lifeTrajectoryItemAppendChild{
+  padding-left: 0.8rem;
+  padding-right: 0.8rem;
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+  display: flex;
+  flex: 1;
+  text-align: left;
+}
+
+.lifeTrajectoryItemAppendChildInnerParent{
+  align-items: flex-start;
+  display: flex;
+  flex: 1;
+}
+
+.lifeTrajectoryItemAppendChildMonth{
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding-right: 0.6rem;
+}
+
+.lifeTrajectoryItemAppendChildDescription{
+  font-size:0.6rem;
+  flex: 1;
 }
 
 .lifeTrajectory {
@@ -626,50 +732,20 @@ ul#total li .achievementtitle,
   align-items: center;
 }
 
-
-.judge {
-  list-style-type: none;
-  display: grid;
-  justify-items: center;
-  grid-template-columns: 50% 50%;
-  grid-auto-columns: max-content;
-  justify-content: center;
-  flex: 1;
-  margin: 1rem;
-  overflow: scroll;
-}
-
-.judge>li {
-  flex: 1;
+.judgeParent{
   display: flex;
-  background-color: #303030;
+  flex-direction: row;
+}
+
+.judgeItem{
+  display: flex;
   box-shadow: none;
-  color: #a5a5a5;
-  padding: 0.4rem;
+  color: #000;
+  padding-bottom: 0.2rem;
+  padding-right: 1.2rem;
   font-size: 1rem;
-  font-weight: 700;
-  width: 10rem;
+  opacity: 0.85;
 }
-
-.judge>li:last-child {
-  border-bottom: 0
-}
-
-.judge>li.grade1 span,
-.judge>li.grade1 {
-  color: #6295b4;
-}
-
-.judge>li.grade2 span,
-.judge>li.grade2 {
-  color: #967ba5;
-}
-
-.judge>li.grade3 span,
-.judge>li.grade3 {
-  color: #bb826f;
-}
-
 
 :root {
   font-family: "OppoSans";
@@ -703,18 +779,23 @@ i {
   color: black;
   font-family: 'OppoSans';
   font-weight: 500;
-  padding: 2rem;
+  padding: 1.6rem;
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin: 1.2rem 1.6rem 1.2rem 1.6rem;
+  border-radius: 2.0rem;
+  box-shadow: 0.2rem 0.8rem 1.6rem 0.2rem rgba(0, 0, 0, 0.2);
 }
 
 .banner .banner-message {
   flex: 1;
-  padding: 0 2rem;
+  padding: 0 1.2rem;
   word-break: break-word;
   font-family: 'OppoSans';
   overflow: auto;
+  letter-spacing: 0.06rem;
+  line-height: 1.35rem;
   color: #fcfcfc;
 }
 
@@ -723,7 +804,6 @@ i {
   align-items: center;
   justify-content: center;
   padding: 0.1rem;
-  border-radius: 20px;
   cursor: pointer;
   color: #fcfcfc;
 }
@@ -758,33 +838,12 @@ i {
   background: rgb(20, 58, 20);
 }
 
-.banner.success::after {
-  background: rgb(20, 58, 20);
-}
-
 .banner.error {
-  background: #5a0a0d;
-}
-
-.banner.error::after {
   background: #5a0a0d;
 }
 
 .banner.info {
   background: rgb(21, 55, 68);
-}
-
-.banner.info::after {
-  background: rgb(21, 55, 68);
-}
-
-.banner::after {
-  content: "";
-  position: absolute;
-  height: 10%;
-  width: 100%;
-  bottom: 100%;
-  left: 0;
 }
 
 .banner.toInvisible {
@@ -803,7 +862,6 @@ i {
 
 .banner.visible {
   display: flex !important;
-  box-shadow: 0 0 1.6rem rgba(0, 0, 0, 0.12);
   animation-name: banner-in;
   animation-direction: forwards;
   animation-duration: 0.4s;
@@ -1018,11 +1076,11 @@ i {
 
 @keyframes banner-in {
   0% {
-    transform: translateY(-100%);
+    transform: translateY(-160%);
   }
 
   50% {
-    transform: translateY(10%);
+    transform: translateY(12%);
   }
 
   100% {
@@ -1036,7 +1094,7 @@ i {
   }
 
   100% {
-    transform: translateY(-100%);
+    transform: translateY(-160%);
   }
 }
 

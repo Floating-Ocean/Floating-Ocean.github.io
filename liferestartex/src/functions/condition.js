@@ -10,7 +10,7 @@ function parseCondition(condition) {
         cursor = i;
         if(str) stack[0].push(str);
     };
-    let reserved = ["AEVR", "VAGE"];
+    let reserved = ["AEVR", "VAGE", "CRV"];
     let ignore = false;
     for(let i=0; i<length; i++) {
         let flag = false;
@@ -98,7 +98,8 @@ function checkProp(property, condition) {
     let propData = property.get(prop);
     [
         [/AEVR\(\d+\)/, "AEVR"],
-        [/VAGE\(\d+\)/, "VAGE"]
+        [/VAGE\(\d+\)/, "VAGE"],
+        [/CRV\(\d+\)/, "CRV"]
     ].forEach(each => {
         const [exp, tp] = each;
         if(prop.search(exp) != -1){
@@ -154,4 +155,4 @@ function extractMaxTriggers(condition) {
     return age_list.length;
 }
 
-export { checkCondition, extractMaxTriggers };
+export { checkCondition, extractMaxTriggers, parseCondition };

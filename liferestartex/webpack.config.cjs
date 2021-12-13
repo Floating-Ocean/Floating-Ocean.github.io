@@ -7,6 +7,10 @@ module.exports = {
   devServer: {
     static: [
       {
+        directory: path.join(__dirname, 'info'),
+        publicPath: '/info',
+      },
+      {
         directory: path.join(__dirname, 'data'),
         publicPath: '/data',
       },

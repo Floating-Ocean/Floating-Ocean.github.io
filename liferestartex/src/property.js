@@ -8,6 +8,8 @@ class Property {
         AGE: "AGE", // 年龄 age AGE
         CCI: "CCI", //当前虚拟章节id Current Chapter Id CCI
         ISVA: "ISVA", //年龄是否虚拟 is virtual age ISVA
+        VAR: "VAR", //构建分支 variant
+        CRVFR: "CRVFR", //角色值 character value for read
         CHR: "CHR", // 颜值 charm CHR
         INT: "INT", // 智力 intelligence INT
         STR: "STR", // 体质 strength STR
@@ -73,17 +75,79 @@ class Property {
     #ageData;
     #chapterAgeData;
     #chapterAges;
+    #characterValue;
+    #initialCharacterValue;
     #data = {};
+    #backupData;
+    #backupChapterAges;
+    #backupCharacterValue;
+    #appBranch;
+    #variantMap = {};
 
-    initial({age, chapterAge}) {
+    initial({age, chapterAge, character, appBranch}) {
         this.#ageData = this.generateAgeData(age);
+        this.appBranch = appBranch;
         this.#chapterAgeData = new Map();
         this.#chapterAges = new Map();
+        this.#initialCharacterValue = character;
+        this.initialChapterAge(chapterAge);
+        this.refreshCharacter();
+        this.initialVariantMap();
+    }
+
+    initialVariantMap(){
+        this.#variantMap = {
+            "release": 0,
+            "beta": 1,
+            "dev": 2
+        };
+    }
+
+    initialChapterAge(chapterAge){
         chapterAge.forEach(each => {
             const [id, backColorDark, backColorLight, data] = each;
             this.#chapterAgeData.set(Number(id), [this.generateAgeData(data), backColorDark, backColorLight]); //读取各章节age数据
             this.#chapterAges.set(Number(id) ,-1); //为虚拟年龄赋初值
         });
+    }
+
+    initialCharacter(character){
+        for(const each in character){
+            const {id, name, initial} = each;
+            if(!this.#characterValue.hasOwnProperty(Number(id)))
+                this.#characterValue.set(Number(id), initial || 0); //initial value
+        }
+    }
+
+    cloneEntry(from){
+        let to = {};
+        for(const key in from)
+            to[key] = from[key];
+        return to;
+    }
+
+    cloneMap(from){
+        let to = new Map();
+        for(const key in from)
+            to.set(key, from[key]);
+        return to;
+    }
+
+    backupProperties(){
+        this.#backupData = this.cloneEntry(this.#data);
+        this.#backupCharacterValue = this.cloneMap(this.#characterValue);
+        this.#backupChapterAges = this.cloneMap(this.#chapterAges);
+    }
+
+    restoreBackup(){
+        this.#data = this.cloneEntry(this.#backupData);
+        this.#characterValue = this.cloneMap(this.#backupCharacterValue);
+        this.#chapterAges = this.cloneMap(this.#backupChapterAges);
+    }
+
+    refreshCharacter(){
+        this.#characterValue = json2map(this.lsget(this.TYPES.CRVFR) || "[]");
+        this.initialCharacter(this.#initialCharacterValue);
     }
 
     generateAgeData(age){
@@ -113,6 +177,7 @@ class Property {
             [this.TYPES.AGE]: -1,
             [this.TYPES.CCI]: -1,
             [this.TYPES.ISVA]: false,
+            [this.TYPES.VAR]: this.#variantMap[this.#appBranch],
 
             [this.TYPES.CHR]: 0,
             [this.TYPES.INT]: 0,
@@ -144,9 +209,9 @@ class Property {
         this.lsdel(this.TYPES.AEVRFS);
         for(const key in this.#chapterAges.keys()) //reset chapter age.
             this.chapterAge.set(key, -1);
+        this.refreshCharacter();
     }
 
-    //感觉这是段未完成的code
     restartLastStep() {
         this.#data[this.TYPES.LAGE] = this.get(this.TYPES.AGE);
         this.#data[this.TYPES.LCHR] = this.get(this.TYPES.CHR);
@@ -173,6 +238,7 @@ class Property {
             }
         });
         this.lsset(this.TYPES.AEVRFR, map2json(map));
+        this.lsset(this.TYPES.CRVFR, map2json(this.#characterValue)); //save the crv.
     }
 
     get(prop) {
@@ -180,6 +246,7 @@ class Property {
             case this.TYPES.AGE:
             case this.TYPES.CCI:
             case this.TYPES.ISVA:
+            case this.TYPES.VAR:
             case this.TYPES.CHR:
             case this.TYPES.INT:
             case this.TYPES.STR:
@@ -210,13 +277,19 @@ class Property {
                     this.get(this.fallback(prop))
                 );
             case this.TYPES.SUM:
-                const HAGE = this.get(this.TYPES.HAGE);
-                const HCHR = this.get(this.TYPES.HCHR);
-                const HINT = this.get(this.TYPES.HINT);
-                const HSTR = this.get(this.TYPES.HSTR);
-                const HMNY = this.get(this.TYPES.HMNY);
-                const HSPR = this.get(this.TYPES.HSPR);
-                return Math.floor(sum(HCHR, HINT, HSTR, HMNY, HSPR)*2 + HAGE/2);
+                /***
+                 * calculate method:
+                 * factors:
+                 * age 52% current/500
+                 * chr, int, str, mny, spr 9.6% each current/1273 (convert negative numbers to 0)
+                */
+                let age = this.get(this.TYPES.HAGE) / 500 * 0.52;
+                let chr = this.get(this.TYPES.HCHR) / 1273 * 0.096;
+                let int = this.get(this.TYPES.HINT) / 1273 * 0.096;
+                let str = this.get(this.TYPES.HSTR) / 1273 * 0.096;
+                let mny = this.get(this.TYPES.HMNY) / 1273 * 0.096;
+                let spr = this.get(this.TYPES.HSPR) / 1273 * 0.096;
+                return Math.floor(sum(age, chr, int, str, mny, spr) * 1000000);
             case this.TYPES.TMS:
                 return this.lsget('times') || 0;
             case this.TYPES.EXT:
@@ -226,6 +299,7 @@ class Property {
             case this.TYPES.ACHV:
             case this.TYPES.AEVRFS:
             case this.TYPES.AEVRFR:
+            case this.TYPES.CRVFR:
                 return this.lsget(prop) || [];
             case this.TYPES.CTLT:
             case this.TYPES.CEVT:
@@ -243,6 +317,8 @@ class Property {
                 return json2map(this.lsget(this.TYPES.AEVRFR) || "[]").get(id.toString()) || -1;
             case "VAGE": 
                 return this.#chapterAges.get(id);
+            case "CRV":
+                return this.#characterValue.get(id.toString()) || -1;
             default:
                 return 0;
         }
@@ -355,9 +431,12 @@ class Property {
                 );
                 return;
             default: 
-                if(prop.search(/VAGE\(\d+\)/) != -1){ //这个是vage嘞
+                if(prop.search(/VAGE\(\d+\)/) != -1){ //this is vage...
                     let id = Number(prop.replace("VAGE(", "").replace(")", ""));
                     this.#chapterAges.set(id, this.#chapterAges.get(id) + Number(value));
+                }else if(prop.search(/CRV\(\d+\)/) != -1){ //needless to say...
+                    let id = Number(prop.replace("CRV(", "").replace(")", ""));
+                    this.#characterValue.set(id, this.#characterValue.get(id) + Number(value));
                 }else return;
         }
     }
@@ -425,6 +504,7 @@ class Property {
         this.#data[h] = max(this.#data[h], value);
     }
 
+    //todo: vage and cvr is not included!!!
     achieve(prop, newData) {
         let key;
         switch(prop) {

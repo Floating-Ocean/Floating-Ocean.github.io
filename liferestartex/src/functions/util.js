@@ -63,4 +63,21 @@ function json2map(jsonStr){
     return obj2strMap(jsonStr);
 }
 
-export { clone, max, min, sum, average, weightRandom, listRandom, map2json, json2map };
+//Fisher–Yates shuffle
+function shuffleSelf(array, size) {
+    var index = -1,
+        length = array.length,
+        lastIndex = length - 1;
+    size = size === undefined ? length : size;
+    while (++index < size) {
+        // var rand = baseRandom(index, lastIndex),
+        var rand = index + Math.floor(Math.random() * (lastIndex - index + 1));
+        var value = array[rand];
+        array[rand] = array[index];
+        array[index] = value;
+    }
+    array.length = size;
+    return array;
+}
+
+export { clone, max, min, sum, average, weightRandom, listRandom, map2json, json2map, shuffleSelf };

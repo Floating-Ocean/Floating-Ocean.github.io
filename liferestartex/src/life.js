@@ -1,4 +1,4 @@
-import { weightRandom } from './functions/util.js'
+import { weightRandom, clone } from './functions/util.js'
 import Property from './property.js';
 import Event from './event.js';
 import Talent from './talent.js';
@@ -17,20 +17,23 @@ class Life {
     #talent;
     #achievement;
     #triggerTalents;
+    #pendingAppend;
 
-    async initial() {
-        const [age, talents, events, achievements, chapterAgeList] = await Promise.all([
+    async initial(appBranch) {
+        const [age, talents, events, achievements, chapterAgeList, character] = await Promise.all([
           json('age'),
           json('talents'),
           json('events'),
           json('achievement'),
           json('chapterAgeList'),
+          json('character'),
         ]);
         const chapterAge = await this.dealChapterAgeData(chapterAgeList);
-        this.#property.initial({age, chapterAge});
-        this.#talent.initial({talents});
+        this.#property.initial({age, chapterAge, character, appBranch});
+        this.#talent.initial(appBranch, {talents});
         this.#event.initial({events});
         this.#achievement.initial({achievements});
+        this.#pendingAppend = new Array();
     }
 
     async dealChapterAgeData(chapterAgeList){ //a method to transform age data of each chapter.
@@ -64,19 +67,29 @@ class Life {
     }
 
     next() {
-        const {age, backColor, virtual, event, talent} = this.#property.ageNext();
+        if(this.#pendingAppend.length > 0){
+            const {month, eventContent} = this.doAppend();
+            const isEnd = this.#property.isEnd();
+            this.#achievement.achieve(
+                this.#achievement.Opportunity.TRAJECTORY,
+                this.#property
+            )
+            return { age:undefined, backColor:undefined, virtual:undefined, content:eventContent, isEnd, isAppend:true, month };
+        }else{
+            const {age, backColor, virtual, event, talent} = this.#property.ageNext();
 
-        const talentContent = this.doTalent(talent);
-        const eventContent = this.doEvent(this.random(event));
+            const talentContent = this.doTalent(talent);
+            const eventContent = this.doEvent(this.random(event));
 
-        const isEnd = this.#property.isEnd();
+            const isEnd = this.#property.isEnd();
 
-        const content = [talentContent, eventContent].flat();
-        this.#achievement.achieve(
-            this.#achievement.Opportunity.TRAJECTORY,
-            this.#property
-        )
-        return { age, backColor, virtual, content, isEnd };
+            const content = [talentContent, eventContent].flat();
+            this.#achievement.achieve(
+                this.#achievement.Opportunity.TRAJECTORY,
+                this.#property
+            )
+            return { age, backColor, virtual, content, isEnd, isAppend:false, month:undefined };
+        }
     }
 
     talentReplace(talents) {
@@ -117,17 +130,29 @@ class Life {
         return contents;
     }
 
+    doAppend(){
+        if(this.#pendingAppend.length > 0){
+            const { effect, next, postEvent, description, id, month } = clone(this.#pendingAppend[0]);
+            this.#pendingAppend.splice(0, 1);
+            return { month, eventContent: this.dealEvent(id, effect, description, postEvent, next) };
+        }
+    }
+
     doEvent(eventId) {
-        const { effect, next, description, postEvent } = this.#event.do(eventId, this.#property);
+        const { effect, next, description, postEvent, dealtAppend } = this.#event.do(eventId, this.#property);
+        if(dealtAppend) this.#pendingAppend = dealtAppend;
+        return this.dealEvent(eventId, effect, description, postEvent, next);
+    }
+
+    dealEvent(eventId, effect, description, postEvent, next) {
         this.#property.change(this.#property.TYPES.EVT, eventId);
         this.#property.effect(effect);
         const content = {
             type: this.#property.TYPES.EVT,
             description,
             postEvent,
-        }
-        if(next) return [content, this.doEvent(next)].flat();
-        return [content];
+        };
+        return next ? [content, this.doEvent(next)].flat() : [content];
     }
 
     random(events) {

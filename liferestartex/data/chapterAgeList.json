@@ -1,4 +1,10 @@
 {
+    "500000": {
+        "id": "500000",
+        "branch": "幻想乡",
+        "backColorDark": "#011a05",
+        "backColorLight": "#d5ffce"
+    },
     "700000": {
         "id": "700000",
         "branch": "minecraft",

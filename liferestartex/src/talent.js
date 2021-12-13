@@ -1,5 +1,5 @@
 import { clone, weightRandom } from './functions/util.js';
-import { checkCondition, extractMaxTriggers } from './functions/condition.js';
+import { checkCondition, extractMaxTriggers, parseCondition } from './functions/condition.js';
 import { getRate } from './functions/addition.js';
 
 class Talent {
@@ -7,12 +7,15 @@ class Talent {
 
     #talents;
 
-    initial({talents}) {
+    initial(appBranch, {talents}) {
+        console.log(parseCondition("((SPR>5)|(INT<3))&(VAR=2)"));
         this.#talents = talents;
+        let ids = new Array();
         for(const id in talents) {
             const talent = talents[id];
             talent.id= Number(id);
             talent.grade = Number(talent.grade);
+            if(talent.variant && talent.variant != appBranch) ids.push(talent.id);
             talent.max_triggers = extractMaxTriggers(talent.condition);
             if(talent.replacement) {
                 for(let key in talent.replacement) {
@@ -25,6 +28,12 @@ class Talent {
                 }
             }
         }
+        ids.forEach(i => {
+            delete this.#talents[i];
+        });
+        //for(const k of Object.keys(tmp)){
+        //    if(tmp[k]) this.#talents[k] = tmp[k];
+        //}
     }
 
     count() {

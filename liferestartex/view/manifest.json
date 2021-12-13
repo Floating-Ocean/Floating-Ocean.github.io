@@ -41,11 +41,11 @@
       "type": "image/png"
     }
   ],
-  "name": "人生重开模拟器",
-  "short_name": "LifeRestart",
+  "name": "人生重开",
+  "short_name": "Life Restart Ex.",
   "orientation": "portrait",
   "display": "standalone",
   "start_url": "/view/index.html",
-  "description": "人生重开模拟器",
+  "description": "人生重开",
   "background_color": "#ffffff"
 }

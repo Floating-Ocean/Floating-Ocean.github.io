@@ -19,6 +19,7 @@ globalThis.$$off = (tag, fn) => {
 }
 
 globalThis.json = async fileName => await (await fetch(`../data/${fileName}.json`)).json();
+globalThis.infoJson = async fileName => await (await fetch(`../info/${fileName}.json`)).json();
 
 // Pssst, I've created a github package - https://github.com/brookesb91/dismissible
 globalThis.hideBanners = (e) => {

@@ -1,4 +1,4 @@
-# Life Restart
+# Life Restart Ex.
 
 <a href="https://discord.gg/U3qrf49NMQ"><img src="https://img.shields.io/discord/883382868427014255?color=%23FEE75C&label=Discord&logo=discord&logoColor=white&style=for-the-badge" /></a>
 
@@ -6,7 +6,7 @@
 
 ## 简介
 
-- Game Life Restart
+- Game Life Restart Ex.
 
 ## 使用
 
