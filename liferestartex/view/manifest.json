@@ -45,7 +45,7 @@
   "short_name": "Life Restart Ex.",
   "orientation": "portrait",
   "display": "standalone",
-  "start_url": "/view/index.html",
+  "start_url": "/liferestartex/view/index.html",
   "description": "人生重开",
   "background_color": "#ffffff"
 }

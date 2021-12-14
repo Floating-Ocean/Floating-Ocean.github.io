@@ -199,10 +199,6 @@ input[type=“number”]{
   display: none;
 }
 
-#talentSelectedView {
-  flex: 0 1 auto;
-}
-
 .mainbtn {
   margin: 1rem 1rem;
   padding: 0.8rem 1.6rem;

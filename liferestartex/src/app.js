@@ -85,7 +85,7 @@ class App{
     initPages() {
 
         // Loading
-        const loadingPage = $(`
+        const loadingPage = $(/*html*/`
         <div id="loading_main" class="loading_main visible">
             <div id="title" style="font-weight: 700;">
                 <span style="letter-spacing:0.2rem">人生重开</span><br>
@@ -95,7 +95,7 @@ class App{
         `);
 
         // Index
-        const indexPage = $(`
+        const indexPage = $(/*html*/`
         <div id="index_main" class="index_main visible" style="align:center">
             <button id="achievement">成就</button>
             <button id="specialthanks">特别感谢</button>
@@ -143,7 +143,7 @@ class App{
                 blob = slice.call(blob, 0, blob.size, 'application/octet-stream');
                 const a = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
                 a.href = URL.createObjectURL(blob);
-                a.download = `Remake_save_${new Date().toISOString().replace(':','.')}.json`;
+                a.download = `lre_save_${new Date().toISOString().replace(':','.')}.json`;
 
                 document.body.appendChild(a);
                 a.click();
@@ -191,7 +191,7 @@ class App{
             .find('#specialthanks').hide();
 
         //I kept this for not causing any other bugs for me to fix...
-        const specialThanksPage = $(`
+        const specialThanksPage = $(/*html*/`
         <div id="thanks_main" class="thanks_main visible">
             <button id="specialthanks">返回</button>
             <div id="spthx">
@@ -208,14 +208,14 @@ class App{
             .click(()=>this.switch('thanks', 'index'));
 
         //this ui need to be optimized.
-        const aboutPage = $(`
+        const aboutPage = $(/*html*/`
             <div id="about_main" class="about_main visible">
                 <button id="about">返回</button>
                 <div id="title" style="font-weight: 700;top:30%;left:35%;">
                     <span style="letter-spacing:0.2rem">人生重开</span><br>
                     <div style="margin-top:0.2rem;font-size:1.3rem;opacity:0.85;letter-spacing:0.08rem;">指尖轻触，重拾人生</div><br><br>
                     </div>
-                    <div class="text" style="font-weight: bold; position: absolute;top:35%;overflow:scroll;text-align:left;padding-left:1.2rem;">
+                    <div class="text" style="font-weight: bold; position: absolute;top:35%;overflow:auto;text-align:left;padding-left:1.2rem;">
                     <div style="margin-top:0.2rem;font-size:1.2rem;padding-left:1.8rem;">本游戏经过二次修改</div>
                     <div style="margin-top:0.2rem;font-size:1.2rem;padding-left:1.8rem;">目前仅供学习和交流</div>
                     <div style="margin-top:0.2rem;font-size:1.2rem;padding-left:1.8rem;">Ver. ${this.#packageInfo.get(this.#packageInfo.TYPES.version_main)}.${this.#packageInfo.get(this.#packageInfo.TYPES.build_date)}${this.#packageInfo.get(this.#packageInfo.TYPES.release_edition)}.${this.#packageInfo.get(this.#packageInfo.TYPES.build_variant) == 'release' ? this.#packageInfo.get(this.#packageInfo.TYPES.update_content).length : this.#packageInfo.get(this.#packageInfo.TYPES.build_variant)}</div><br><br>
@@ -240,7 +240,7 @@ class App{
             .find('#about')
             .click(()=>this.switch('about', 'index'));
             
-        const achievementPage = $(`
+        const achievementPage = $(/*html*/`
         <div id="achievement_main" class="achievement_main visible">
             <button id="specialthanks">返回</button>
             <span class="title" style="font-weight: 700; letter-spacing:0.2rem; font-size: 2rem; text-align:left; padding-left:1.4rem; padding-top:3.4rem">统计数据</span>
@@ -258,7 +258,7 @@ class App{
             .find('#rank')
             .click(()=>this.hint('别卷了，你老牛了'));
 
-        const namePage = $(`
+        const namePage = $(/*html*/`
             <div id="name_main" class="name_main visible">
                 <div class="head" style="font-size: 2rem;font-family: 'OppoSans';padding-left:2rem;padding-top:2rem">
                     <div>你的名字？</div>
@@ -282,10 +282,10 @@ class App{
             });
 
         // Talent
-        const talentPage = $(`
+        const talentPage = $(/*html*/`
         <div id="talent_main" class="talent_main visible">
             <div class="head" style="font-size: 2rem;font-family: 'OppoSans';padding-left:2rem;padding-top:2rem">
-                <div>天赋抽个卡</div>
+                <div>天赋抽卡</div>
                 <div style="font-size:1.2rem; font-weight:normal;font-family: 'OppoSans'">点按选择${this.#difficulty[this.#currentDifficulty][3]}-${this.#difficulty[this.#currentDifficulty][2]}个天赋以继续</div>
             </div>
             <button id="random" class="mainbtn" style="position: fixed; top: 44%;align-self:center;">来吧，20连抽！</button>
@@ -363,8 +363,10 @@ class App{
                 <div>分配初始属性</div>
                 <div id="total" style="font-size:1.2rem; font-weight:normal;font-family: 'OppoSans'">剩余属性点：0</div>
             </div>
-            <ul id="propertyAllocation" class="propinitial"></ul>
-            <ul class="selectlist" id="talentSelectedView"></ul>
+            <div style="overflow: auto;display:flex;flex-direction:column">
+                <ul id="propertyAllocation" class="propinitial"></ul>
+                <ul class="selectlist" id="talentSelectedView" style="overflow:unset"></ul>
+            </div>
             <div class="btn-area">
                 <button id="random" class="mainbtn" style="margin-top:1.2rem;margin-bottom:1.2rem;margin-left:2rem;margin-right:0rem;">随机分配</button>
                 <button id="start" class="mainbtn" style="margin-top:1.2rem;margin-bottom:1.2rem;margin-right:2rem;">开启新人生</button>
@@ -493,7 +495,7 @@ class App{
             });
 
         // Trajectory
-        const trajectoryPage = $(`
+        const trajectoryPage = $(/*html*/`
         <div id="trajectory_main" class="trajectory_main visible">
             <ul id="lifeProperty" class="lifeProperty"></ul>
             <ul id="lifeTrajectory" class="lifeTrajectory"></ul>
@@ -646,9 +648,10 @@ class App{
             .click(()=>auto(10)); //50x
 
         // Summary
-        const summaryPage = $(`
+        const summaryPage = $(/*html*/`
         <div id="summary_main" class="summary_main visible">
             <div class="head" style="font-size: 2rem;font-family:'OppoSans';padding-left:2rem;padding-top:2rem">人生总结</div>
+            <div style="display:flex;flex-direction:column;overflow:auto">
             <div style="display:flex;margin-top: 1.2rem;margin-left: 2rem;margin-right: 2rem;margin-bottom: 1.6rem;padding: 1.6rem;align-items: baseline;border-radius: 2.4rem;background: #daf7a6;box-shadow: 0.2rem 0.4rem 1.6rem rgb(0 0 0 / 16%);align-items: center;flex-direction: column;">
                 <div style="display:flex;align-items: flex-start;width: -webkit-fill-available;">
                     <span style="align-self:flex-start;padding-bottom: 1.6rem;font-size: 0.7rem;transform: scale(0.75);font-family:'exo';">Total Score</span>
@@ -688,7 +691,8 @@ class App{
             </div>    
             <div class="head" style="padding-left:2rem;padding-top:0.2rem;height:auto;font-size:1.6rem;letter-spacing:0rem;">选择继承天赋</div>
             <div class="head" style="padding-left:2rem;padding-top:0.2rem;height:auto;font-size:1.2rem;letter-spacing:0rem;opacity:0.85">下次重开将默认抽中</div>
-            <ul id="talents" class="selectlist" style="flex: 1;padding-top:1.6rem"></ul>
+            <ul id="talents" class="selectlist" style="overflow:unset;padding-top:1.6rem"></ul>
+            </div>
             <button id="again" class="mainbtn" style="margin-left:2rem;margin-right:2rem;">再次重开</button>
         </div>
         `);
