@@ -1,0 +1,13 @@
+{
+    "version_main": "2.6.0",
+    "build_date": 211205,
+    "release_edition": 1,
+    "build_variant": "beta",
+    "update_content": [
+        "部分页面微调.",
+        "优化动画.",
+        "人生总结的分数算法更改.",
+        "部分文案修改.",
+        "修复bug."
+    ]
+}

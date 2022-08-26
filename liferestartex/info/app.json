@@ -1,0 +1,14 @@
+{
+    "version_main": "2.7.0",
+    "build_date": 211213,
+    "release_edition": 1,
+    "build_variant": "release",
+    "update_content": [
+        "部分页面微调.",
+        "优化动画.",
+        "底层代码优化.",
+        "修复部分布局bug.",
+        "部分文案修改.",
+        "修复bug."
+    ]
+}
