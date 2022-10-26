@@ -1,26 +1,38 @@
 <!DOCTYPE html>
 <html lang="en-US">
   <head>
+    <link rel="icon" href="images/icons/icon-72x72.png" sizes="72x72">
+    <link rel="icon" href="images/icons/icon-96x96.png" sizes="96x96">
+    <link rel="icon" href="images/icons/icon-128x128.png" sizes="128x128">
+    <link rel="icon" href="images/icons/icon-144x144.png" sizes="144x144">
+    <link rel="icon" href="images/icons/icon-152x152.png" sizes="152x152">
+    <link rel="icon" href="images/icons/icon-192x192.png" sizes="192x192">
+    <link rel="icon" href="images/icons/icon-384x384.png" sizes="384x384">
+    <link rel="icon" href="images/icons/icon-512x512.png" sizes="512x512">
+    <link rel = "stylesheet" href="style.css" type = "text/css"/>
     <title>Tetris Project - Introdution</title>
-    <link href="style.css" rel = "stylesheet" type = "text/css"/>
     </head>
     <body>
         <h1>Tetris Project  游戏玩法介绍</h1>
         <p style="margin-top: 2.4rem;">古典游戏，创新玩法</p>
-        <p>本介绍适用于 <strong>Version 1.10.221025</strong> 及以上版本</p>
+        <p>本介绍适用于 <strong>Version 2.0.221026</strong> 及以上版本</p>
 
 
         <h2>写在前面</h2>
+
         <p>1.这个游戏是我的C语言程序设计的一个实验作业，算是实操一下用C语言写小型项目吧，可能并不会写得很好。</p>
         <p>2.玩法随版本迭代实时更新，玩懵了记得来看看。</p>
         <p>3.目前最高分在800左右，欢迎和我分享你的最高分数。</p>
 
 
         <h2>最近更新的玩法</h2>
-        <p>1.提高了高分数下进度条下落的速度。</p>
-        <p>2.调整最大消格子数量为81。</p>
-        <p>3.按P键查看当前状态，包括难度定数、移动速度和消行数。</p>
+
+        <p>1.统一存储路径至 %localappdata%\Floating Ocean\Tetris\ 内。</p>
+        <p>2.保持上一次的P键状态。</p>
+
+
         <h2>传统俄罗斯方块玩法</h2>
+
         <p>本游戏可以说是传统玩法的拓展，所以传统俄罗斯方块能实现的功能在这里都可以实现。</p>
         <p>而传统俄罗斯方块的玩法呢，相信大家已经很清楚了，这里就不再赘述了。</p>
         <p>若有需要者可访问下面的链接。</p>
@@ -105,7 +117,7 @@
         <p>2.<em><strong>removedLine</strong></em> 为连续消行的行数。</p>
         <p>3.<em><strong>socreMultiply</strong></em> 和难度有关，对于难度EZ, HD, IN，<em><strong>socreMultiply</strong></em> 对应分别为 1, 2, 5。</p>
         <p>特别地，当触发“消除格子”的惩罚后，若无方块剩余，你将得到额外的100分。</p>
-        <p>游戏的分数数据将会存储到 <strong>游戏本体所在文件夹/TetrisData</strong> 内，可借此迁移数据。</p>
+        <p>游戏的分数数据将会存储到 <strong>%localappdata%\Floating Ocean\Tetris\</strong> 内，可借此迁移数据。</p>
 
 
         <h4>惩罚 · 消除格子数量</h4>
@@ -136,6 +148,6 @@
         <p>若出现严重的bug，请编写标题为<strong> &quot;Feedback - TP&quot; </strong>以及涵盖较为具体内容的邮件至<a href='mailto:sea113290980@qq.com' target='_blank' class='url' style="padding: 0.2rem 0.8rem 0.2rem 0.8rem;margin-left: 0.6rem;margin-right: 0.6rem;">sea113290980@qq.com</a>，谢谢。</p>
 
 
-        <p class="copyright">Introdution page on Github.<br>Tetris Project 1.10.221025.　Copyright ©2022 Floating Ocean. All Rights Reserved.</p>
+        <p class="copyright">Introdution page on Github.<br>Tetris Project 2.0.221026.　Copyright ©2022 Floating Ocean. All Rights Reserved.</p>
     </body>
 </html>
