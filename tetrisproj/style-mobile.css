@@ -50,26 +50,26 @@ audio:not([controls]){
 [hidden],template{
     display:none
 }
-a{
+.linked{
     font-family:'OPPOSans-Ver2-Bold';
     font-size: 2.4rem;
     padding: 0.8rem 2.4rem 0.8rem 2.4rem;
     text-decoration: none;
     border-radius: 2.8rem;
 }
-a:link {
+.linked:link {
     color:#121212;
     background-color: rgba(12, 12, 12, 0.12);
 }      
-a:visited {
+.linked:visited {
     color:#121212;
     background-color: rgba(12, 12, 12, 0.12);
 }  
-a:hover {
+.linked:hover {
     color:#565656;
     background-color: rgba(12, 12, 12, 0.12);
 }  
-a:active {
+.linked:active {
     color:#121212;
     background-color: rgba(12, 12, 12, 0.12);
 }  
@@ -442,6 +442,14 @@ body{
     margin-top: 6.4rem;
     width: 100%;
 }
+.navigator-container-content{
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    width: 100%;
+    height: 85%;
+    scroll-padding-bottom: 1.2rem;
+}
 .navigator-container.visible,
 .navigator-container.invisible{
     display: none;
@@ -451,3 +459,70 @@ body{
     margin-left: 5.2rem;
     margin-right: 5.2rem;
 }
+.link-h5{
+    text-decoration:none;
+    cursor: pointer;
+    font-size:3.2em;
+    font-weight: 600;
+    font-family:'OPPOSans-Ver2-Bold';
+    margin:0.67em 0 0.2em 0
+}
+.link-h5:link {
+    color:#121212;
+    background-color: transparent;
+}      
+.link-h5:visited {
+    color:#121212;
+    background-color: transparent;
+}  
+.link-h5:hover {
+    color:#121212;
+    background-color: transparent;
+}  
+.link-h5:active {
+    color:#121212;
+    background-color: transparent;
+}
+.link-h6{
+    text-decoration:none;
+    cursor: pointer;
+    font-weight: 400;
+    font-size:2.6em;
+    font-family:'OPPOSans-Ver2-Medium';
+    margin:0.33em 0
+}
+.link-h6:link {
+    color:#121212;
+    background-color: transparent;
+}      
+.link-h6:visited {
+    color:#121212;
+    background-color: transparent;
+}  
+.link-h6:hover {
+    color:#121212;
+    background-color: transparent;
+}  
+.link-h6:active {
+    color:#121212;
+    background-color: transparent;
+}  
+.scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 1px;
+    border-radius: 5px;
+    background: transparent;
+  }
+ .scrollbar::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.2);
+ }
+  .navigator-container-content::-webkit-scrollbar {
+    width: 8px;
+    height: 1px;
+    border-radius: 5px;
+  }
+ .navigator-container-content::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.2);
+ }
