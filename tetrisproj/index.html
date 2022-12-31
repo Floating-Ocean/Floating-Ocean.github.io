@@ -18,7 +18,7 @@
       <div class="title-container visible">
         <h1>Tetris Project  游戏玩法介绍</h1>
         <p style="margin-top: 2.4rem;">古典游戏，创新玩法</p>
-        <p>本介绍适用于 <strong>Version 2.1.2.221216</strong> 及以上版本</p>
+        <p>本介绍适用于 <strong>Version 2.2.0.230101</strong> 及以上版本</p>
         </div>
 
         <div class="navigator-container visible">
@@ -55,8 +55,10 @@
 
         <h2 id="update">最近更新的玩法</h2>
 
-        <p>1. 修改挑战模式的成功条件，在一定程度上降低了难度.</p>
-        <p>2. 在玩家主动消除完所有方块后，会得到一定的分数.</p>
+        <p>1. 新增玩法：颠倒重力。作为一个10%概率触发的惩罚，它会水平垂直翻转游戏页面，直到下一次消行.</p>
+        <p>2. Beyond模式下的加速惩罚将更加困难，且加速的持续时间将提升到18s.</p>
+        <p>3. Easy难度和Hard难度消格子的有效行数调整为 8, 16.</p>
+        <p>4. 普通变速持续时间下调为9s.</p>
 
 
         <h2 id="tradition">传统俄罗斯方块玩法</h2>
@@ -99,19 +101,20 @@
         <h5>Easy难度</h5>
 
         <h6>下落速度: 2 mps (Move Per Second)</h6>
-        <h6>惩罚方式: 从底部向上数，取三个有效行(不足三个取全部)，在所取行内随机删除较少数量的格子 (具体数量请看后面的介绍)。</h6>
+        <h6>惩罚方式: 从底部向上数，取8个有效行(不足8个取全部)，在所取行内随机删除较少数量的格子 (具体数量请看后面的介绍)。</h6>
 
         <h5>Hard难度</h5>
 
         <h6>下落速度: 3.33 mps </h6>
-        <h6>惩罚方式: 从底部向上数，取十个有效行(不足十个取全部)，在所取行内随机删除较多数量的格子。</h6>
+        <h6>惩罚方式: 从底部向上数，取16个有效行(不足16个取全部)，在所取行内随机删除较多数量的格子。</h6>
 
         <h5>Insane难度</h5>
         <h6>下落速度: 5 mps </h6>
         <h6>惩罚方式: 三种方式任选一种，惩罚不会出现重叠</h6>
         <h6>	1. 40% 在所有有效行内随机删除较多数量的格子。</h6>
-        <h6>	2. 30% 随机抽取两个有效行(不重叠)，互换两行的格子。</h6>
-        <h6>	3. 30% 改变mps，倍速范围在0.64~0.80 ∪ 2.00~4.00之间，效果持续10s。</h6>
+        <h6>	2. 10% 水平竖直翻转游戏页面直到下一次消行，不叠加。</h6>
+        <h6>	3. 30% 随机抽取两个有效行(不重叠)，互换两行的格子。</h6>
+        <h6>	3. 20% 改变mps，倍速范围在0.64~0.80 ∪ 2.00~4.00之间，效果持续10s。</h6>
 
         
         <h5>Beyond难度</h5>
@@ -202,6 +205,6 @@
 
       </div>
 
-        <p class="copyright">Introdution page on Github.<br>Tetris Project 2.1.4.221220.　Copyright ©2022 Floating Ocean. All Rights Reserved.</p>
+        <p class="copyright">Introdution page on Github.<br>Tetris Project 2.2.0.230101.　Copyright ©2022-2023 Floating Ocean. All Rights Reserved.</p>
     </body>
 </html>
