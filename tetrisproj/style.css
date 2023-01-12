@@ -447,7 +447,7 @@ body{
     top: 20%;
     background-color: rgba(12, 12, 12, 0.06);
     border-radius: 2.4rem;
-    padding: 2.8rem 2.4rem;
+    padding: 2.8rem 2.4rem 2.8rem 1.2rem;
     width: 30%;
     height: 60%;
 }
@@ -477,53 +477,82 @@ body{
 .title-container.invisible{
     width: 100%;
 }
+.link-parent{
+    display: flex;
+    padding: 0em 0em;
+    margin: 0em 1em 0em 0em;
+}
 .link-h5{
     text-decoration:none;
     cursor: pointer;
     font-size:1.04em;
     font-weight: 600;
+    width: 100%;
     font-family:'OPPOSans-Ver2-Bold';
-    margin:1.2em 0 0.2em 0
+    padding:0.7em 0 0.7em 1.2rem;
+    border-radius: 1.2rem;
+    transition: all 0.2s ease 0.06s
 }
 .link-h5:link {
     color:#121212;
     background-color: transparent;
+    font-size:1.04em;
+    font-weight: 600;
 }      
 .link-h5:visited {
     color:#121212;
     background-color: transparent;
+    font-size:1.04em;
+    font-weight: 600;
 }  
 .link-h5:hover {
-    color:#121212;
-    background-color: transparent;
+    color:#000000;
+    background-color: rgba(0, 0, 0, 0.08);
+    font-size:1.2em;
+    font-weight: 600;
 }  
 .link-h5:active {
     color:#121212;
-    background-color: transparent;
+    background-color: rgba(0, 0, 0, 0.16);
+    font-size:1.04em;
+    font-weight: 600;
 }
 .link-h6{
     text-decoration:none;
     cursor: pointer;
     font-weight: 400;
     font-size:0.85em;
+    width: 100%;
     font-family:'OPPOSans-Ver2-Medium';
-    margin:0.48em 1.3rem
+    padding:0.81em 2.8rem 0.81em 2.8em;
+    border-radius: 1.08rem;
+    transition: all 0.2s ease 0.06s
 }
 .link-h6:link {
     color:#121212;
     background-color: transparent;
+    padding:0.81em 2.8rem 0.81em 2.8em;
+    font-size:0.85em;
 }      
 .link-h6:visited {
     color:#121212;
     background-color: transparent;
+    padding:0.81em 2.8rem 0.81em 2.8em;
+    font-size:0.85em;
 }  
 .link-h6:hover {
-    color:#121212;
-    background-color: transparent;
+    color:#000000;
+    background-color: rgba(0, 0, 0, 0.08);
+    padding:0.81em 2.54rem 0.81em 2.54em;
+    font-weight: 700;
+    font-size:0.96em;
 }  
 .link-h6:active {
     color:#121212;
-    background-color: transparent;
+    background-color: rgba(0, 0, 0, 0.16);
+    padding:0.81em 2.8rem 0.81em 2.8em;
+    font-weight: 700;
+    font-size:0.85em;
 }  
 .scrollbar::-webkit-scrollbar {
     width: 8px;

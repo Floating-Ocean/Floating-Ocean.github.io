@@ -454,6 +454,11 @@ body{
     margin-left: 5.2rem;
     margin-right: 5.2rem;
 }
+.link-parent{
+    display: flex;
+    padding: 0em 0em;
+    margin: 0em 1em 0em 0em;
+}
 .link-h5{
     text-decoration:none;
     cursor: pointer;
