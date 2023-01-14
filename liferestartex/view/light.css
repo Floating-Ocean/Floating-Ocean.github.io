@@ -41,6 +41,17 @@
     url('iconfont.woff?t=1628944689555') format('woff'),
     url('iconfont.ttf?t=1628944689555') format('truetype');
 }
+@font-face {
+  font-family: 'OPPOSans';
+  src: 
+    url('OPPOSans.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'exo';
+  src: 
+    url('Exo-Medium.otf') format('opentype');
+}
 
 * {
   margin: 0;
