@@ -1249,7 +1249,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #d0ffdf;
+  background: #ff2f74;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -2536,4 +2536,16 @@ mjx-container + br {
 }
 .links-of-blogroll-item {
   padding: 0;
+}
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #003140; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #3d3d07, #003140); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #3d3d07, #003140); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  }
+}
+body {
+  background: rgba(0,195,255,0.12); /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, rgba(255,255,28,0.12), rgba(0,195,255,0.12)); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, rgba(255,255,28,0.12), rgba(0,195,255,0.12)); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
