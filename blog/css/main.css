@@ -1,6 +1,6 @@
 :root {
   --body-bg-color: #f5f7f9;
-  --content-bg-color: #fff;
+  --content-bg-color: rgba(255,255,255,0.81);
   --card-bg-color: #f5f5f5;
   --text-color: #555;
   --blockquote-color: #666;
@@ -10,7 +10,7 @@
   --brand-hover-color: #fff;
   --table-row-odd-bg-color: #f9f9f9;
   --table-row-hover-bg-color: #f5f5f5;
-  --menu-item-bg-color: #f5f5f5;
+  --menu-item-bg-color: rgba(51,51,51,0.06);
   --btn-default-bg: #fff;
   --btn-default-color: #555;
   --btn-default-border-color: #555;
@@ -21,7 +21,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --body-bg-color: #282828;
-    --content-bg-color: #333;
+    --content-bg-color: rgba(51,51,51,0.81);
     --card-bg-color: #555;
     --text-color: #ccc;
     --blockquote-color: #bbb;
@@ -31,7 +31,7 @@
     --brand-hover-color: #ddd;
     --table-row-odd-bg-color: #282828;
     --table-row-hover-bg-color: #363636;
-    --menu-item-bg-color: #555;
+    --menu-item-bg-color: rgba(255,255,255,0.06);
     --btn-default-bg: #222;
     --btn-default-color: #ccc;
     --btn-default-border-color: #555;
@@ -1186,7 +1186,6 @@ pre .javascript .function {
   opacity: 0;
 }
 .sidebar {
-  background: #222;
   bottom: 0;
   box-shadow: inset 0 2px 6px #000;
   position: fixed;
@@ -1249,7 +1248,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #4aff60;
+  background: #203e67;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -1493,7 +1492,7 @@ pre .javascript .function {
 }
 .with-love {
   color: #00000000;
-  display: inline-block;
+  display: none;
   margin: 0 5px;
 }
 .powered-by,
@@ -1565,6 +1564,7 @@ pre .javascript .function {
 }
 .back-to-top {
   background: #222;
+  border-radius: 1.2rem;
   bottom: -100px;
   box-sizing: border-box;
   color: #fff;
@@ -1573,7 +1573,10 @@ pre .javascript .function {
   opacity: 0.6;
   padding: 0 6px;
   position: fixed;
-  transition-property: bottom;
+  transition-property: all 0.5 ease-in-out;
+  transform: scale(1);
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
   z-index: 1300;
   width: 24px;
 }
@@ -1581,7 +1584,14 @@ pre .javascript .function {
   display: none;
 }
 .back-to-top:hover {
-  color: #fc6423;
+  transform: scale(1.18);
+  -webkit-transform: scale(1.18);
+  -moz-transform: scale(1.18);
+}
+.back-to-top:active {
+  transform: scale(1);
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
 }
 .back-to-top.back-to-top-on {
   bottom: 30px;
@@ -2436,7 +2446,6 @@ mjx-container + br {
   border-bottom-color: #fc6423;
 }
 .sidebar {
-  background: var(--body-bg-color);
   box-shadow: none;
   margin-top: 100%;
   position: static;
@@ -2539,15 +2548,15 @@ mjx-container + br {
 }
 @media (prefers-color-scheme: light) {
   body {
-    background: rgba(0,195,255,0.12); /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, rgba(255,255,28,0.12), rgba(0,195,255,0.12)); /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, rgba(255,255,28,0.12), rgba(0,195,255,0.12)); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: rgba(253,200,48,0.12); /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, rgba(243,115,53,0.12), rgba(253,200,48,0.12)); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, rgba(243,115,53,0.12), rgba(253,200,48,0.12)); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   }
 }
 @media (prefers-color-scheme: dark) {
   body {
-    background: #263033; /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, #323227, #263033); /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, #323227, #263033); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: #3b3422; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #3a2a22, #3b3422); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #3a2a22, #3b3422); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   }
 }
