@@ -22,8 +22,6 @@ Hey, 这里是主页！
 
 <br>
 
-<br>
-
-<p>©2022-2023 Floating Ocean. All Rights Reserved.</p>
+<b>Copyright ©2022-2023 Floating Ocean. <br> All Rights Reserved.</b>
 
 
