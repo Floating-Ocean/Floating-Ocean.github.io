@@ -50,11 +50,11 @@ function heightToTop(ele){
 var buttons=[guide_intro, guide_update, guide_tradition, guide_game, 
     guide_main, guide_operate, guide_difficulty, guide_challenge, guide_save, 
     guide_calculate, guide_score, guide_punish, guide_end, guide_other, guide_github, 
-    guide_greetings, guide_get, guide_feedback];
+    guide_greetings, guide_get];
 const tags=[intro, update, tradition, game, main, operate, difficulty, challenge, save, 
-    calculate, score, punish, end, other, github, greetings, get, feedback];
+    calculate, score, punish, end, other, github, greetings, get];
 //按钮点击时
-for(var i=0;i<18;i++){
+for(var i=0;i<17;i++){
     let tag = tags[i];
     buttons[i].addEventListener('click',function(){
         window.scrollTo({
